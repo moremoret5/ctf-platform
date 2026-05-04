@@ -1,0 +1,108 @@
+{% extends "user/base.html" %}
+
+{% block title %}AcademyCTF - Главная{% endblock %}
+
+{% block content %}
+<div class="jumbotron p-5 rounded text-center border shadow-sm">
+    <h1 class="display-4">Добро пожаловать на AcademyCTF!</h1>
+    <p class="lead">Образовательная платформа для изучения кибербезопасности через практические задания</p>
+    <hr class="my-4">
+
+    {% if not current_user.is_authenticated %}
+    <p>Начните свое обучение кибербезопасности прямо сейчас!</p>
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-person-plus"></i> Регистрация
+        </a>
+        <a href="{{ url_for('user_login') }}" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-box-arrow-in-right"></i> Вход
+        </a>
+    </div>
+    {% else %}
+    <p>Привет, {{ current_user.username }}! Готовы решать новые задания?</p>
+    <a href="{{ url_for('challenges') }}" class="btn btn-primary btn-lg mt-3">
+        <i class="bi bi-flag"></i> Перейти к заданиям
+    </a>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h3 class="text-center mb-4">Категории заданий</h3>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category|upper }}</h5>
+                        <p class="card-text">
+                            {% if category == 'stego' %}
+                            Стеганография - поиск скрытой информации
+                            {% elif category == 'forensic' %}
+                            Форензика - анализ цифровых следов
+                            {% elif category == 'pwn' %}
+                            Взлом программ и эксплуатация уязвимостей
+                            {% elif category == 'revers' %}
+                            Реверс-инжиниринг программ
+                            {% elif category == 'osint' %}
+                            Поиск информации в открытых источниках
+                            {% elif category == 'web' %}
+                            Веб-безопасность и уязвимости
+                            {% elif category == 'joy' %}
+                            Развлекательные задания для отдыха
+                            {% elif category == 'crypto' %}
+                            Криптография и шифрование
+                            {% else %}
+                            Задания по {{ category }}
+                            {% endif %}
+                        </p>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('challenges', category=category) }}" class="btn btn-outline-primary">
+                            Смотреть задания
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightbulb"></i> Как работает платформа</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Выберите задание из интересующей категории</li>
+                    <li>Изучите описание и скачайте файлы (если есть)</li>
+                    <li>Найдите флаг, используя свои знания и навыки</li>
+                    <li>Введите флаг для проверки</li>
+                    <li>Если не получается - используйте хинты</li>
+                    <li>После всех хинтов доступен разбор задания</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-award"></i> Система прогресса</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Каждое задание дает очки в зависимости от сложности</li>
+                    <li>Следите за своим прогрессом в профиле</li>
+                    <li>Хинты открываются после нескольких неправильных попыток</li>
+                    <li>Разборы помогают понять решение сложных заданий</li>
+                    <li>Администраторы могут добавлять новые задания</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

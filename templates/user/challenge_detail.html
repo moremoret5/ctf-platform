@@ -1,0 +1,135 @@
+{% extends "user/base.html" %}
+
+{% block title %}{{ challenge.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{{ challenge.title }}</h4>
+                <div class="d-flex gap-2 mt-2">
+                    <span class="badge bg-primary">{{ challenge.category|upper }}</span>
+                    <span class="badge bg-{% if challenge.difficulty == 'easy' %}success{% elif challenge.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                        {{ challenge.difficulty|upper }}
+                    </span>
+                    <span class="badge bg-secondary">{{ challenge.points }} pts</span>
+                    {% if solved %}
+                    <span class="badge bg-success">Решено</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Описание</h5>
+                    <div class="challenge-description">
+                        {{ challenge.description|safe }}
+                    </div>
+                </div>
+
+                {% if challenge.files %}
+                <div class="mb-4">
+                    <h5>Файлы</h5>
+                    <div class="list-group">
+                        {% for file in challenge.files.split(',') %}
+                        <a href="{{ url_for('download_file', filename=file) }}"
+                           class="list-group-item list-group-item-action">
+                            <i class="bi bi-download"></i> {{ file }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if not solved %}
+                <div class="mb-4">
+                    <h5>Отправить флаг</h5>
+                    <form method="POST" action="{{ url_for('challenge_detail', challenge_id=challenge.id) }}">
+                        <div class="input-group">
+                            <input type="text" name="flag" class="form-control"
+                                   placeholder="Введите флаг..." required>
+                            <button class="btn btn-primary" type="submit">Проверить</button>
+                        </div>
+                    </form>
+                    <small class="text-muted">Неправильных попыток: {{ wrong_attempts }}</small>
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> Вы уже решили это задание!
+                </div>
+                {% endif %}
+
+                {% if hints %}
+                <div class="mb-4">
+                    <h5>Хинты</h5>
+                    <div class="accordion" id="hintsAccordion">
+                        {% for hint in hints %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button {% if not hint.unlocked %}collapsed{% endif %}"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#hint{{ hint.index }}"
+                                        {% if not hint.unlocked %}disabled{% endif %}>
+                                    Хинт {{ hint.index + 1 }}
+                                    {% if not hint.unlocked %}
+                                    <span class="badge bg-warning ms-2">Нужно {{ (hint.index + 1) * 3 }} неправильных попыток</span>
+                                    {% endif %}
+                                </button>
+                            </h2>
+                            <div id="hint{{ hint.index }}"
+                                 class="accordion-collapse collapse {% if hint.unlocked %}show{% endif %}"
+                                 data-bs-parent="#hintsAccordion">
+                                <div class="accordion-body">
+                                    {{ hint.text }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if writeup_available or solved %}
+                <div class="mb-4">
+                    <h5>Разбор задания</h5>
+                    {% if writeup_accessed %}
+                    <div class="card">
+                        <div class="card-body">
+                            {{ challenge.writeup|safe }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <p>После получения всех хинтов вы можете посмотреть разбор задания.</p>
+                        <a href="{{ url_for('view_writeup', challenge_id=challenge.id) }}"
+                           class="btn btn-info">
+                            Посмотреть разбор
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Статистика</h5>
+            </div>
+            <div class="card-body">
+                <p>Решило: {{ challenge.solved_by|length }} пользователей</p>
+                <p>Сложность: {{ challenge.difficulty|upper }}</p>
+                <p>Категория: {{ challenge.category|upper }}</p>
+                <p>Очки: {{ challenge.points }}</p>
+                <hr>
+                <p class="text-muted">
+                    <small>Задание создано: {{ challenge.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

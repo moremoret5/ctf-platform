@@ -1,0 +1,87 @@
+{% extends "user/base.html" %}
+
+{% block title %}Задания{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Категории</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('challenges') }}"
+                   class="list-group-item list-group-item-action {% if selected_category == 'all' %}active{% endif %}">
+                    Все категории
+                </a>
+                {% for category in categories %}
+                <a href="{{ url_for('challenges', category=category) }}"
+                   class="list-group-item list-group-item-action {% if selected_category == category %}active{% endif %}">
+                    {{ category|upper }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6>Статистика</h6>
+                <p>Всего заданий: {{ challenges|length }}</p>
+                <p>Решено: {{ solved_ids|length }}</p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar"
+                         style="width: {{ (solved_ids|length / challenges|length * 100) if challenges|length > 0 else 0 }}%">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="row">
+            {% for challenge in challenges %}
+            <div class="col-md-6">
+                <div class="card challenge-card {% if challenge.id in solved_ids %}solved{% else %}unsolved{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title">{{ challenge.title }}</h5>
+                            <span class="badge bg-primary">{{ challenge.points }} pts</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="badge bg-secondary category-badge">{{ challenge.category|upper }}</span>
+                            <span class="badge bg-{% if challenge.difficulty == 'easy' %}success{% elif challenge.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                                {{ challenge.difficulty|upper }}
+                            </span>
+                        </div>
+
+                        <p class="card-text">{{ challenge.description[:100] }}{% if challenge.description|length > 100 %}...{% endif %}</p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Решило: {{ challenge.solved_by|length }} пользователей
+                            </small>
+
+                            {% if challenge.id in solved_ids %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Решено
+                            </span>
+                            {% else %}
+                            <a href="{{ url_for('challenge_detail', challenge_id=challenge.id) }}"
+                               class="btn btn-primary btn-sm">Решать</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    В этой категории пока нет заданий.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "user/base.html" %}
+
+{% block title %}Профиль - {{ current_user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Информация профиля</h5>
+            </div>
+            <div class="card-body">
+                <h6>Имя пользователя: {{ current_user.username }}</h6>
+                <p>Email: {{ current_user.email or 'Не указан' }}</p>
+                <p>Зарегистрирован: {{ current_user.created_at.strftime('%d.%m.%Y') }}</p>
+                {% if current_user.is_admin %}
+                <span class="badge bg-danger">Администратор</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Статистика</h5>
+            </div>
+            <div class="card-body">
+                <p>Решено заданий: {{ total_solved }}</p>
+                <p>Всего очков: {{ total_points }}</p>
+
+                {% if total_active_challenges > 0 %}
+                <div class="progress mb-3">
+                    <div class="progress-bar" role="progressbar"
+                         style="width: {{ (total_solved / total_active_challenges * 100) if total_active_challenges > 0 else 0 }}%">
+                    </div>
+                </div>
+                <small class="text-muted">Прогресс: {{ total_solved }} из {{ total_active_challenges }} активных заданий</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Прогресс по категориям</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for category, count in category_stats.items() %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ category|upper }}</h6>
+                                <h3 class="text-primary">{{ count }}</h3>
+                                <small class="text-muted">решений</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Решенные задания</h5>
+            </div>
+            <div class="card-body">
+                {% if solved %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Категория</th>
+                                <th>Сложность</th>
+                                <th>Очки</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for challenge in solved %}
+                            <tr>
+                                <td>{{ challenge.title }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ challenge.category|upper }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if challenge.difficulty == 'easy' %}success{% elif challenge.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                                        {{ challenge.difficulty|upper }}
+                                    </span>
+                                </td>
+                                <td>{{ challenge.points }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Вы еще не решили ни одного задания.</p>
+                <div class="text-center">
+                    <a href="{{ url_for('challenges') }}" class="btn btn-primary">
+                        Начать решать задания
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

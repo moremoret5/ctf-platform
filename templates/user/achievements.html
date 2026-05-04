@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Ачивки{% endblock %}
+{% block content %}
+<div class="container mt-4 mb-5">
+    <h2 class="mb-3">🏆 Мои ачивки</h2>
+    <p class="text-muted mb-4">Получайте уникальные достижения за решение заданий.</p>
+
+    {% if earned %}
+    <div class="row g-4">
+        {% for ua, ach in earned %}
+        <div class="col-md-4 col-sm-6">
+            <div class="card h-100 border-warning shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if ach.icon and ach.icon.startswith('bi-') %}
+                            <i class="{{ ach.icon }} display-4 text-warning"></i>
+                        {% elif ach.icon %}
+                            <img src="{{ url_for('static', filename='uploads/achievements/' + ach.icon) }}"
+                                 alt="{{ ach.name }}" class="img-fluid rounded-circle"
+                                 style="width: 80px; height: 80px; object-fit: contain;">
+                        {% else %}
+                            <i class="bi bi-trophy display-4 text-warning"></i>
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title">{{ ach.name }}</h5>
+                    <p class="card-text small text-muted">{{ ach.description }}</p>
+                    <span class="badge bg-success">
+                        <i class="bi bi-calendar-check me-1"></i>
+                        {{ ua.obtained_at.strftime('%d.%m.%Y') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Вы пока не получили ни одной ачивки. Решайте задания, чтобы разблокировать достижения!
+    </div>
+    {% endif %}
+
+    <hr class="my-5">
+    <h4 class="mb-3">🔓 Доступные ачивки</h4>
+    <div class="row g-3">
+        {% for ach in all_achievements %}
+            {% if ach.id not in earned_ids %}
+            <div class="col-md-4 col-sm-6">
+                <div class="card h-100 opacity-75">
+                    <div class="card-body text-center">
+                        <i class="bi bi-lock-fill display-6 text-secondary mb-2"></i>
+                        <h6 class="card-title">{{ ach.name }}</h6>
+                        <p class="card-text small text-muted">{{ ach.description }}</p>
+                        <small class="text-muted fst-italic">
+                            <i class="bi bi-key me-1"></i>Заблокировано
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

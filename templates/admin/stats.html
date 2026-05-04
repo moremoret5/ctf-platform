@@ -1,0 +1,164 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Статистика{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Статистика платформы</h2>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Статистика по категориям</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Категория</th>
+                                <th>Заданий</th>
+                                <th>Решений</th>
+                                <th>Процент</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in category_stats %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary">{{ stat.category|upper }}</span>
+                                </td>
+                                <td>{{ stat.challenges }}</td>
+                                <td>{{ stat.solves }}</td>
+                                <td>
+                                    {% if total_users > 0 and stat.challenges > 0 %}
+                                        {% set percentage = (stat.solves / (stat.challenges * total_users) * 10000) %}
+                                    {% else %}
+                                        {% set percentage = 0 %}
+                                    {% endif %}
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: {{ percentage }}%">
+                                            {% if percentage > 0 %}
+                                                {{ "%.1f"|format(percentage) }}%
+                                            {% else %}
+                                                0%
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Топ заданий по решениям</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Задание</th>
+                                <th>Категория</th>
+                                <th>Решили</th>
+                                <th>Процент</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in challenge_stats|sort(attribute='solves', reverse=True) %}
+                            {% if loop.index <= 10 %}
+                            <tr>
+                                <td>{{ stat.challenge.title }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ stat.challenge.category|upper }}</span>
+                                </td>
+                                <td>{{ stat.solves }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                            <div class="progress-bar bg-{% if stat.solved_percentage > 70 %}success{% elif stat.solved_percentage > 30 %}warning{% else %}danger{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ stat.solved_percentage if stat.solved_percentage <= 100 else 100 }}%">
+                                            </div>
+                                        </div>
+                                        <span style="min-width: 50px;">{{ "%.1f"|format(stat.solved_percentage if stat.solved_percentage <= 100 else 100) }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Подробная статистика по заданиям</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Сложность</th>
+                        <th>Очки</th>
+                        <th>Решили</th>
+                        <th>Процент решения</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in challenge_stats %}
+                    <tr>
+                        <td>{{ stat.challenge.id }}</td>
+                        <td>{{ stat.challenge.title }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ stat.challenge.category|upper }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{% if stat.challenge.difficulty == 'easy' %}success{% elif stat.challenge.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                                {{ stat.challenge.difficulty|upper }}
+                            </span>
+                        </td>
+                        <td>{{ stat.challenge.points }}</td>
+                        <td>{{ stat.solves }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                    <div class="progress-bar bg-info" role="progressbar"
+                                         style="width: {{ stat.solved_percentage if stat.solved_percentage <= 100 else 100 }}%">
+                                    </div>
+                                </div>
+                                <span style="min-width: 40px;">{{ "%.1f"|format(stat.solved_percentage if stat.solved_percentage <= 100 else 100) }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if stat.challenge.is_active %}
+                            <span class="badge bg-success">Активно</span>
+                            {% else %}
+                            <span class="badge bg-danger">Неактивно</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

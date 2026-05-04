@@ -1,0 +1,101 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Добавить задание{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Добавить новое задание</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Название задания</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Категория</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Выберите категорию</option>
+                                {% for category in categories %}
+                                <option value="{{ category }}">{{ category|upper }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="points" class="form-label">Очки</label>
+                            <input type="number" class="form-control" id="points" name="points"
+                                   value="100" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Описание задания</label>
+                        <textarea class="form-control" id="description" name="description"
+                                  rows="5" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="flag" class="form-label">Флаг</label>
+                        <input type="text" class="form-control" id="flag" name="flag" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="files" class="form-label">Файлы задания (опционально)</label>
+                        <input type="file" class="form-control" id="files" name="files" multiple>
+                        <small class="text-muted">Будут сохранены в uploads/challenges/</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="hints" class="form-label">Хинты (по одному на строку)</label>
+                        <textarea class="form-control" id="hints" name="hints"
+                                  rows="3" placeholder="Подсказка 1&#10;Подсказка 2&#10;Подсказка 3"></textarea>
+                        <small class="text-muted">Открываются после каждых 3 неправильных попыток</small>
+                    </div>
+
+                    <hr class="my-4">
+                    <h5 class="text-primary">📁 Райтап (файл)</h5>
+                    <div class="mb-3">
+                        <label for="writeup_file" class="form-label">Загрузить разбор</label>
+                        <input type="file" class="form-control" id="writeup_file" name="writeup_file" accept=".pdf,.md,.txt,.zip,.html,.docx">
+                        <small class="text-muted">Станет доступен пользователям после активации в профиле</small>
+                    </div>
+
+                    <hr class="my-4">
+                    <h5 class="text-warning">🏆 Ачивка за задание</h5>
+                    <p class="text-muted small">Заполните, чтобы пользователи получали достижение при решении.</p>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="ach_name" class="form-label">Название ачивки</label>
+                            <input type="text" class="form-control" id="ach_name" name="ach_name" placeholder="Напр: Crypto Master">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ach_desc" class="form-label">Описание ачивки</label>
+                            <input type="text" class="form-control" id="ach_desc" name="ach_desc" placeholder="Напр: Решил все крипто-задачи">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ach_icon" class="form-label">Иконка ачивки</label>
+                        <input type="file" class="form-control" id="ach_icon" name="ach_icon" accept="image/png, image/jpeg, image/gif, image/svg+xml">
+                        <small class="text-muted">Рекомендуемый размер: 64x64 или 128x128 px</small>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                        <label class="form-check-label" for="is_active">Задание активно сразу после создания</label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Создать задание</button>
+                        <a href="{{ url_for('admin_challenges') }}" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

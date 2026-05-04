@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Ачивки</h2>
+
+<form method="POST">
+
+    <input name="name" placeholder="Название">
+    <input name="icon" placeholder="Иконка (emoji или class)">
+    <textarea name="description" placeholder="Описание"></textarea>
+
+    <select name="criteria_type">
+        <option value="solve_count">Кол-во решений</option>
+        <option value="category_solve">Категория</option>
+        <option value="specific_challenges">Конкретные задания</option>
+    </select>
+
+    <textarea name="criteria_value" placeholder='JSON критериев'></textarea>
+
+    <button type="submit">Создать</button>
+
+</form>
+
+<hr>
+
+{% for a in achievements %}
+<div class="card">
+    <h3>{{ a.name }}</h3>
+    <p>{{ a.description }}</p>
+</div>
+{% endfor %}
+
+{% endblock %}

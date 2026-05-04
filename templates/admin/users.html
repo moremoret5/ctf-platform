@@ -1,0 +1,60 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Пользователи{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Управление пользователями</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя пользователя</th>
+                <th>Email</th>
+                <th>Решено заданий</th>
+                <th>Дата регистрации</th>
+                <th>Админ</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email or '-' }}</td>
+                <td>{{ user.solved_challenges|length }}</td>
+                <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                <td>
+                    {% if user.is_admin %}
+                    <span class="badge bg-success">Да</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Нет</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.id != current_user.id %}
+                    <a href="{{ url_for('toggle_admin', user_id=user.id) }}"
+                       class="btn btn-sm btn-{% if user.is_admin %}warning{% else %}primary{% endif %}"
+                       onclick="return confirm('{% if user.is_admin %}Отозвать{% else %}Выдать{% endif %} права администратора?')">
+                        {% if user.is_admin %}
+                        <i class="bi bi-shield-x"></i> Отозвать админку
+                        {% else %}
+                        <i class="bi bi-shield-check"></i> Сделать админом
+                        {% endif %}
+                    </a>
+                    {% else %}
+                    <span class="text-muted">Это вы</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">Нет пользователей</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
